@@ -17,6 +17,12 @@ defmodule HelloWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/movie", MovieController, :index
+    get "/movie/new", MovieController, :new
+    post "/movie", MovieController, :create
+    get "/movie/:title", MovieController, :show
+    put "/movie", MovieController, :update
+    delete "/movie/:title", MovieController, :delete
   end
 
   # Other scopes may use custom stacks.

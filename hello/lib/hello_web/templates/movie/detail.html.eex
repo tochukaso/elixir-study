@@ -1,0 +1,33 @@
+<section class="phx-hero">
+  <h1>映画レビュー</h1>
+</section>
+
+<%= form_for @changeset, Routes.movie_path(@conn, @action),fn f -> %>
+<div class="form-group">
+  <label>タイトル</label>
+  <%= text_input f, :title, class: "form-control" %>
+  <%= error_tag f, :title%>
+</div>
+
+<div class="form-group">
+  <label>本文</label>
+  <%= textarea f, :note, class: "form-control" %>
+  <%= error_tag f, :note %>
+</div>
+
+<div class="form-group">
+  <label>評価</label>
+  <%= select f, :rate, ["★", "★★", "★★★", "★★★★", "★★★★★"], class: "form-control" %>
+  <%= error_tag f, :rate %>
+</div>
+
+<%= submit "Submit", class: "btn btn-primary" %>
+<span style="margin-left:50px">
+  <%= button "一覧へ戻る",to: "/movie", method: :get, class: "btn btn-primary" %>
+</span>
+<%= if @action == :update do%>
+  <span style="margin-left:50px">
+    <%= button "削除する",to: "/movie/#{@changeset.changes.title}", method: :delete, class: "btn btn-primary" %>
+  </span>
+<% end %>
+<% end %>

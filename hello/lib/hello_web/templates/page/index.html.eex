@@ -8,6 +8,9 @@
     <h2>Resources</h2>
     <ul>
       <li>
+        <%= link "映画レビュー", to: Routes.movie_path(@conn, :index) %>
+      </li>
+      <li>
         <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
       </li>
       <li>

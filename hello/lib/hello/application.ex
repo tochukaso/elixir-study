@@ -5,6 +5,8 @@ defmodule Hello.Application do
 
   use Application
 
+  alias HelloWeb.MovieEts
+
   def start(_type, _args) do
     children = [
       # Start the Telemetry supervisor
@@ -16,6 +18,9 @@ defmodule Hello.Application do
       # Start a worker by calling: Hello.Worker.start_link(arg)
       # {Hello.Worker, arg}
     ]
+
+    # 映画のETSの初期化
+    MovieEts.initialize()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
