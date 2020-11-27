@@ -181,6 +181,208 @@ iex(1)> Example.hello()
 exmpleディレクトリーに移動して、iex -S mixでmixプロジェクトを対話型シェルで立ち上げます。
 _Example.ex_ に定義してあるhello関数を呼び出します。
 
+## 関数の定義
+
+モジュールの中で関数を定義する事ができます。
+関数は`def`、または`defp`で宣言します。
+`def`の場合は _public_ な関数として、外部のモジュールから呼び出すことが出来ます。
+`defp`の場合、 _private_ な関数として、定義されているモジュールの中からのみ呼び出せます。
+
+
+``` elixir
+  def hello() do
+    IO.puts("Hello world. please tell me your name.")
+  end
+
+  def hello(name) do
+    IO.puts("Hello world #{name}")
+    name
+  end
+
+  def hello(name, age) do
+    IO.puts("Hello world #{name} : #{age}")
+    {name, age}
+  end
+```
+
+上記は、`hello`関数を3つ定義しています。
+Elixirは動的型付け言語なので、関数の引数に型の指定がありません。
+また、関数の戻り値の型の指定もありません。
+
+関数の戻り値は関数内で一番最後に呼ばれる関数の戻り値、または変数です。
+そのため、上記の3つの関数ではそれぞれ戻り値が異なります。
+hello/0の戻り値は:okです。
+  これは、IO.puts関数の戻り値が:okだからです。
+hello/1の戻り値は引数をそのまま返却します。
+hello/2の戻り値は引数をタプルにして返却します。
+※タプルは固定長の配列の様なイメージです。
+
+また、ElixirではJavaなどの言語にある`return`はありません。
+
+ガード節(早期`return`)は、以下の２つの方法で実現できます。
+
+- `when`キーワードを利用する
+- `パターンマッチング`を利用する。
+
+`when`キーワードを利用する場合
+
+``` elixir
+def hello(name, age) when age < 20 do
+  IO.puts("Hello world #{name} : #{age}")
+  IO.puts("you are under twenty")
+end
+
+def hello(name, age) do
+  IO.puts("Hello world #{name} : #{age}")
+  IO.puts("you are over nineteen")
+end
+```
+
+`when`キーワードを用いることで、関数の引数の条件を指定することが出来ます。
+同一のシグネチャー(関数名と引数の数(_arity_))の関数が複数定義されている場合、
+宣言された順番にwhenの条件に合致しているかの判断を行います。
+
+なので、以下の様に、10歳未満の判定関数を20歳未満の次に宣言すると、
+10歳未満の関数が呼ばれることはありません。
+
+``` elixir
+def hello(name, age) when age < 20 do
+  IO.puts("Hello world #{name} : #{age}")
+  IO.puts("you are under twenty")
+end
+
+def hello(name, age) when age < 10 do
+  IO.puts("Hello world #{name} : #{age}")
+  IO.puts("you are under ten")
+end
+
+def hello(name, age) do
+  IO.puts("Hello world #{name} : #{age}")
+  IO.puts("you are over nineteen")
+end
+```
+
+`パターンマッチング`を利用する場合
+
+``` elixir
+def match(name, age) do
+  pattern_match(name, is_under_twenty(age))
+end
+defp pattern_match(name, :ok) do
+  IO.puts("Hello #{name}")
+  IO.puts("you are under twenty")
+end
+defp pattern_match(name, :error) do
+  IO.puts("Hello #{name}")
+  IO.puts("you are over nineteen")
+end
+
+defp is_under_twenty(age) do
+  if age < 20 do
+    :ok
+  else
+    :error
+  end
+end
+```
+
+引数が指定された条件にマッチしているかどうかを確認して、
+マッチしている場合にその関数が実行されます。
+`when`の際と同様に、宣言した順番に判定を行います。
+
+## 基本構文
+
+if
+
+``` elixir
+  def is_under_twenty(age) do
+    if age < 20 do
+      IO.puts("age is under twenty")
+      :ok
+    else
+      IO.puts("age is not less than twenty")
+      :error
+    end
+  end
+```
+
+unless
+
+``` elixir
+  def is_under_twenty(age) do
+    unless age > 20 do
+      IO.puts("age is under twenty")
+      :ok
+    end
+  end
+```
+
+ただし、unlessの使用はあまり推奨されていません。
+
+for
+
+``` elixir
+  def hello_loop(count) do
+    for x <- 1..count do
+      IO.puts("hello #{x}")
+    end
+  end
+```
+
+Elixirでfor文を書く機会はあまりないと思います。
+私は`for`を使用した記憶はないです。
+Listの要素をループ処理する場合、`Enum.each`を使用します。
+他にも、`Enum.map`、`Enum.filter`,`Enum.reduce`当りを活用することで、forを使用しないで書けると思います。
+
+``` elixir
+  def enum_loop(count) do
+    Enum.each(1..count, fn(x) ->
+      IO.puts("hello #{x}")
+    end)
+  end
+```
+
+## データ型、構造
+
+基本的なデータ型として、以下があります。
+
+- 文字列
+- atom
+- 数値型
+  - integer
+  - float
+- bolean
+
+データ構造として、コレクションを紹介します。
+
+- マップ
+- リスト
+- タブル
+- キーワードリスト
+
+``` elixir
+  def enum_loop(count) do
+    # mapの宣言
+    # キーにはatom、文字列の何れかが使えます。
+
+    # atomをキーに使用する場合
+    mike = %{name: "mike", age: 35}
+
+    # 文字列をキーに使用する場合
+    bob = %{"name" => "bob", "age" => 25}
+
+    # listの宣言
+    users_list = [mike, bob]
+
+    # タプルの宣言
+    users_tuple = {mike, bob}
+
+    # キーワードlistの宣言
+    keyword_list = [first: mike, second: bob]
+
+  end
+```
+
 ## フィボナッチ数列を解く
 
 [フィボナッチ数列]とは、「2つ前の項と1つ前の項を足し合わせていくことでできる数列」のことです。数列は「1,1」から始まり、
@@ -194,46 +396,21 @@ _Example.ex_ に定義してあるhello関数を呼び出します。
 [100番目までのフィボナッチ数列]
 
 `fibonacci.ex`に解き方を定義する。
-## 宿題
-ビールの箱詰め機械を実装してみよう。
 
-引数を受け取って、箱の大きさに合致する瓶を格納して箱詰めしてください。
-大きい箱から優先して使用する必要があります。
+## 他にも参考になること
 
-ビールの箱詰め機械の条件
-- 整数がパラメーターとして渡されない場合、以下のエラーを返却する
-  - "Error: Passed argument mu st be an integer"
-- 箱にはそれぞれ以下の瓶が入ります。
-  - big = 24本
-  - medium = 12本
-  - small = 6本
-
-また、箱に入らなかった瓶はremaining_bottlesとして表示してください。
-
-参考情報として、以下の引数の場合に以下の出力となることを確認してください。
-``` shell
-iex(1)> c("beer_factory.ex")
-[BeerFactory]
-iex(2)> BeerFactory.prep_boxes("Hello, world!")
-"Error: Passed argument must be an integer"
-iex(3)> BeerFactory.prep_boxes(43)
-%{big: 1, medium: 1, remaining_bottles: 1, small: 1}
-iex(4)> BeerFactory.prep_boxes(0)
-%{remaining_bottles: 0}
-iex(5)> BeerFactory.prep_boxes(3.1415)
-"Error: Passed argument must be an integer"
-iex(6)> BeerFactory.prep_boxes(31415)
-%{big: 1308, medium: 1, remaining_bottles: 5, small: 1}
-iex(7)> BeerFactory.prep_boxes(7)
-%{remaining_bottles: 1, small: 1}
-```
-
+- [Elixirのコーディング規約]
+  - 私が参画していた案件で使用していた規約になります。
+- [Elixirのパターンマッチを攻略しよう]
+  - Qiitaの記事ですが分かりやすい内容でした。
 
 [atom]: https://elixirschool.com/ja/lessons/basics/basics/#アトム
 [asdf]: https://asdf-vm.com/#/
 [Discordが500万のユーザーの同時接続]: https://blog.discord.com/scaling-elixir-f9b8e1e7c29b
 [Elixir]: https://elixir-lang.org/
 [Elixirのインストール]: https://elixir-lang.org/install.html
+[Elixirのコーディング規約]: https://github.com/rrrene/elixir-style-guide
+[Elixirのパターンマッチを攻略しよう]: https://qiita.com/naoya@github/items/9da982febe89d83cb5b5
 [ETS]: https://hexdocs.pm/ets/ETS.html
 [ETSでテーブルを作成]: https://erlang.org/doc/man/ets.html#new-2
 [FastGlobal]: https://github.com/discord/fastglobal
