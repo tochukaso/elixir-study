@@ -388,18 +388,35 @@ Listの要素をループ処理する場合、`Enum.each`を使用します。
 - キーワードリスト
 
 ``` elixir
-  def enum_loop(count) do
+  def collection(count) do
     # mapの宣言
     # キーにはatom、文字列の何れかが使えます。
-
     # atomをキーに使用する場合
     mike = %{name: "mike", age: 35}
 
     # 文字列をキーに使用する場合
     bob = %{"name" => "bob", "age" => 25}
 
+    # mapの値を取得する。
+    # キーワードがatomの場合、.<キー>, .<[atom]>の何れかの方法で値を取得できる。
+    IO.puts(mike.name)
+    IO.puts(mike[:name])
+    # キーワードが文字列の場合、[文字列]で値を取得できる。
+    IO.puts(mike["name"])
+
+    # mapへの要素の追加
+    mike_with_jobs = Map.put(mike, :job, "engineer")
+
+    # mapの全要素を出力する。
+    Enum.each(mike_with_jobs, fn(key, val) ->
+      IO.puts("#{key} : #{val}")
+    end)
+    
+
     # listの宣言
     users_list = [mike, bob]
+
+    # listの値の取得
 
     # タプルの宣言
     users_tuple = {mike, bob}
