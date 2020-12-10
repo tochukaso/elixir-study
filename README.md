@@ -14,6 +14,7 @@ Rubyの構文や思想に影響を受けて作成されている。
 ## Elixirのメリット
 
 - WebSocketが標準的なフレームワーク([Phoenix])で対応している。
+- 動的型付け言語なので、構文が冗長にならずシンプルに書ける
 - 関数型言語なので、オブジェクトの状態について意識しなくてよい。
   - デバッグ、プログラムを追いかけるのが容易になる。
   - 関数型言語のため、並列処理に強い。
@@ -26,18 +27,27 @@ Rubyの構文や思想に影響を受けて作成されている。
 ``` elixir
 signature =
   payload
-  |> :public_key.sign(:sha, decode_pk(private_key))
+  |> :public_key.sign(:sha, private_key)
   |> Base.encode64()
   |> String.to_charlist()
   |> Enum.map(&replace/1)
   |> to_string()
 ```
 
+``` Java
+String signature = replaceSpecialCharacter(Base.encode64(sign(payload, SHA, privateKey)).toCharArray()).toString()
+```
+
+Javaで1行で書こうとした際と比べると、関数の実行順序が分かりやすく、可読性が高い。
+Javaの場合、まずどのメソッドが実行されるのかが分かりづらい。
+
 ## Elixirのデメリット
 
 - 動的型付け言語のため、複数人の開発で使いづらいところはある
   - 特にメソッドの引数を[Map]型にすることが多く、引数に求められている値をメソッドの中身を確認して知ることが多い。
+    - 業務上ではパブリックな関数の引数や戻り値の型は基本的に書くようにしていた。
 - 黒魔術的な難しい構文(マクロ)がある
+  - 自分でマクロを書いたことは殆どないですが、ライブラリーのソースなどで使用していることがあるので、多少は読み方を把握しておく必要があります。
 - Elixirのマニュアルだけではなく、ErlangのAPIマニュアルの確認や、Erlangの仕様についても調査が必要となることがある。
 
 ## Elixirのハンズオン
@@ -427,6 +437,63 @@ Listの要素をループ処理する場合、`Enum.each`を使用します。
   end
 ```
 
+## ハンズオン
+
+## 問題1
+
+時間計算をする。
+
+関数の引数には秒が与えられるので、 何分かを出力する。
+
+1分未満の秒数は切り捨てる。
+
+`div`という割り算で切り捨てを行うビルトイン関数があります。
+
+例1.
+input: 100
+output: 1
+
+例2.
+input: 3600
+output: 60
+
+## 問題2
+
+Fizz Buzz問題を解く
+
+1から30までの数字をループ処理する。
+
+- 3の倍数の時に、Fizzを出力する。
+- 5の倍数の時に、Buzzを出力する。
+- 3と5の倍数のときに、FizzBuzzを出力する。
+- 上記以外の場合は数字を出力する。
+ 
+以下の様な感じになります。
+
+``` shell
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+```
+
+## 問題3
+
+Listに重複した数字が含まれている場合に、排除して返却する関数を記載する。
+
+例.
+
+``` text
+['Mike', 'Bob', 'Jane', 'Mike']
+⇒
+['Mike', 'Bob', 'Jane']
+```
+
+[Enum#uniq]という関数があり、これで要素の重複を弾くことが出来ます。
+
 ## フィボナッチ数列を解く
 
 [フィボナッチ数列]とは、「2つ前の項と1つ前の項を足し合わせていくことでできる数列」のことです。数列は「1,1」から始まり、
@@ -451,6 +518,7 @@ Listの要素をループ処理する場合、`Enum.each`を使用します。
 [atom]: https://elixirschool.com/ja/lessons/basics/basics/#アトム
 [asdf]: https://asdf-vm.com/#/
 [Discordが500万のユーザーの同時接続]: https://blog.discord.com/scaling-elixir-f9b8e1e7c29b
+[Enum#uniq]: https://hexdocs.pm/elixir/Enum.html#uniq/1
 [Elixir]: https://elixir-lang.org/
 [Elixirのインストール]: https://elixir-lang.org/install.html
 [Elixirのコーディング規約]: https://github.com/rrrene/elixir-style-guide
